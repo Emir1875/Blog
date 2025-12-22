@@ -26,7 +26,6 @@
               </g>
             </svg>
           </div>
-          <span class="nav-link-text me-1">لوحة القيادة</span>
         </a>
       </li>
       <li class="nav-item">
