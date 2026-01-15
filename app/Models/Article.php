@@ -35,13 +35,19 @@ class Article extends Model
         return $this->belongsToMany(User::class, 'bookmarks');
     }
 
-    public function isLikedBy(User $user)
+    public function isLikedBy(?User $user)
     {
+        if (!$user) {
+            return false;
+        }
         return $this->likedByUsers()->where('user_id', $user->id)->exists();
     }
 
-    public function isBookmarkedBy(User $user)
+    public function isBookmarkedBy(?User $user)
     {
+        if (!$user) {
+            return false;
+        }
         return $this->bookmarkedByUsers()->where('user_id', $user->id)->exists();
     }
 }

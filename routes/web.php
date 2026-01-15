@@ -11,25 +11,7 @@ use App\Http\Controllers\Pelanggan\ArticlesController;
  * Redirect ke dashboard sesuai role jika sudah login
  * Redirect ke login jika belum login
  */
-Route::get('/', function () {
-    if (Auth::check()) {
-        $user = Auth::user();
-
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->isStaff()) {
-            return redirect()->route('staff.dashboard');
-        }
-
-        if ($user->isPelanggan()) {
-            return redirect()->route('pelanggan.dashboard');
-        }
-    }
-
-    return redirect()->route('login');
-})->name('home');
+Route::get('/', [App\Http\Controllers\Pelanggan\ArticleController::class, 'index'])->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'index'])->name('login');

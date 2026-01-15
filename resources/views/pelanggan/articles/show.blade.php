@@ -26,8 +26,7 @@
     <link id="pagestyle" href="{{ asset('assets/css/soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet" />
 </head>
 
-<body class="g-sidenav-show  bg-gray-100">
-    @include('pelanggan.partials.sidebar')
+<body class="bg-gray-100">
     <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg ">
         <!-- Navbar -->
         <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur"
@@ -45,6 +44,34 @@
                     </ol>
                     <h6 class="font-weight-bolder mb-0">Article Detail</h6>
                 </nav>
+                <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+                    <ul class="navbar-nav ms-md-auto justify-content-end">
+                        @guest
+                            <li class="nav-item d-flex align-items-center">
+                                <a href="{{ route('login') }}" class="nav-link text-body font-weight-bold px-0">
+                                    <i class="fa fa-user me-sm-1"></i>
+                                    <span class="d-sm-inline d-none">Sign In</span>
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item d-flex align-items-center">
+                                <a href="{{ route('pelanggan.profile') }}" class="nav-link text-body font-weight-bold px-0">
+                                    <i class="fa fa-user me-sm-1"></i>
+                                    <span class="d-sm-inline d-none">{{ Auth::user()->name }}</span>
+                                </a>
+                            </li>
+                        @endguest
+                        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+                            <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                                <div class="sidenav-toggler-inner">
+                                    <i class="sidenav-toggler-line"></i>
+                                    <i class="sidenav-toggler-line"></i>
+                                    <i class="sidenav-toggler-line"></i>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
         <!-- End Navbar -->
@@ -65,25 +92,34 @@
                                     <span class="text-sm">{{ $article->views }} views</span>
                                 </div>
                                 <div class="d-flex gx-2">
-                                    <form action="{{ route('pelanggan.articles.like', $article->slug) }}" method="POST"
-                                        class="me-2">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-sm {{ $article->isLikedBy(auth()->user()) ? 'btn-danger' : 'btn-outline-danger' }} mb-0">
-                                            <i class="fa fa-heart me-1"></i>
-                                            {{ $article->isLikedBy(auth()->user()) ? 'Liked' : 'Like' }}
-                                            ({{ $article->likes }})
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('pelanggan.articles.bookmark', $article->slug) }}"
-                                        method="POST">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-sm {{ $article->isBookmarkedBy(auth()->user()) ? 'btn-dark' : 'btn-outline-dark' }} mb-0">
-                                            <i class="fa fa-bookmark me-1"></i>
-                                            {{ $article->isBookmarkedBy(auth()->user()) ? 'Saved' : 'Save' }}
-                                        </button>
-                                    </form>
+                                    @auth
+                                        <form action="{{ route('pelanggan.articles.like', $article->slug) }}" method="POST"
+                                            class="me-2">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-sm {{ $article->isLikedBy(auth()->user()) ? 'btn-danger' : 'btn-outline-danger' }} mb-0">
+                                                <i class="fa fa-heart me-1"></i>
+                                                {{ $article->isLikedBy(auth()->user()) ? 'Liked' : 'Like' }}
+                                                ({{ $article->likes }})
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('pelanggan.articles.bookmark', $article->slug) }}"
+                                            method="POST">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-sm {{ $article->isBookmarkedBy(auth()->user()) ? 'btn-dark' : 'btn-outline-dark' }} mb-0">
+                                                <i class="fa fa-bookmark me-1"></i>
+                                                {{ $article->isBookmarkedBy(auth()->user()) ? 'Saved' : 'Save' }}
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('login') }}" class="btn btn-sm btn-outline-danger mb-0 me-2">
+                                            <i class="fa fa-heart me-1"></i> Like ({{ $article->likes }})
+                                        </a>
+                                        <a href="{{ route('login') }}" class="btn btn-sm btn-outline-dark mb-0">
+                                            <i class="fa fa-bookmark me-1"></i> Save
+                                        </a>
+                                    @endauth
                                 </div>
                             </div>
                         </div>
@@ -113,15 +149,22 @@
                         </div>
                         <div class="card-body">
                             <!-- Comment Form -->
-                            <form action="{{ route('pelanggan.articles.comments.store', $article->slug) }}"
-                                method="POST" class="mb-4">
-                                @csrf
-                                <div class="form-group mb-2">
-                                    <textarea name="content" class="form-control" rows="3"
-                                        placeholder="Leave a comment..." required></textarea>
+                            @auth
+                                <form action="{{ route('pelanggan.articles.comments.store', $article->slug) }}"
+                                    method="POST" class="mb-4">
+                                    @csrf
+                                    <div class="form-group mb-2">
+                                        <textarea name="content" class="form-control" rows="3"
+                                            placeholder="Leave a comment..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn bg-gradient-primary btn-sm">Post Comment</button>
+                                </form>
+                            @else
+                                <div class="alert alert-info text-white mb-4" role="alert">
+                                    Please <a href="{{ route('login') }}" class="alert-link text-white">login</a> to leave a
+                                    comment.
                                 </div>
-                                <button type="submit" class="btn bg-gradient-primary btn-sm">Post Comment</button>
-                            </form>
+                            @endauth
 
                             <!-- Comments List -->
                             @forelse($comments as $comment)
@@ -136,24 +179,26 @@
                                         </h6>
                                         <p class="text-sm mb-2">{{ $comment->content }}</p>
 
-                                        <!-- Reply Button -->
-                                        <button class="btn btn-link btn-sm text-primary p-0"
-                                            onclick="toggleReplyForm({{ $comment->id }})">Reply</button>
+                                        @auth
+                                            <!-- Reply Button -->
+                                            <button class="btn btn-link btn-sm text-primary p-0"
+                                                onclick="toggleReplyForm({{ $comment->id }})">Reply</button>
 
-                                        <!-- Reply Form -->
-                                        <div id="reply-form-{{ $comment->id }}" class="mt-2 d-none">
-                                            <form action="{{ route('pelanggan.articles.comments.store', $article->slug) }}"
-                                                method="POST">
-                                                @csrf
-                                                <input type="hidden" name="parent_id" value="{{ $comment->id }}">
-                                                <div class="form-group mb-2">
-                                                    <textarea name="content" class="form-control" rows="2"
-                                                        placeholder="Write a reply..." required></textarea>
-                                                </div>
-                                                <button type="submit" class="btn bg-gradient-secondary btn-sm">Submit
-                                                    Reply</button>
-                                            </form>
-                                        </div>
+                                            <!-- Reply Form -->
+                                            <div id="reply-form-{{ $comment->id }}" class="mt-2 d-none">
+                                                <form action="{{ route('pelanggan.articles.comments.store', $article->slug) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="parent_id" value="{{ $comment->id }}">
+                                                    <div class="form-group mb-2">
+                                                        <textarea name="content" class="form-control" rows="2"
+                                                            placeholder="Write a reply..." required></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn bg-gradient-secondary btn-sm">Submit
+                                                        Reply</button>
+                                                </form>
+                                            </div>
+                                        @endauth
 
                                         <!-- Replies -->
                                         @foreach($comment->replies as $reply)
